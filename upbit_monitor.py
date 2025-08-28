@@ -278,7 +278,7 @@ def main():
 
     # Create and run monitor
     monitor = UpbitAnnouncementMonitor(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
-    monitor.run_monitor(check_interval_seconds=5)  # Check every 60 seconds
+    monitor.run_monitor(check_interval_seconds=1)  # Check every 60 seconds
 
 
 if __name__ == "__main__":
