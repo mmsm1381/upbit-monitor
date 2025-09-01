@@ -317,7 +317,7 @@ class UpbitAnnouncementMonitor:
             self.process_new_announcement_message(announcement)
             time.sleep(1)  # Small delay between messages
 
-    def run_monitor(self, check_interval_seconds: int = 60) -> None:
+    def run_monitor(self, check_interval_seconds: float = 60) -> None:
         """
         Run the monitoring loop
 
@@ -383,7 +383,7 @@ def main():
 
     # Create and run monitor
     monitor = UpbitAnnouncementMonitor(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, PROXY_LIST)
-    monitor.run_monitor(check_interval_seconds=1)  # Check every 60 seconds
+    monitor.run_monitor(check_interval_seconds=0.5)  # Check every 60 seconds
 
 
 if __name__ == "__main__":
