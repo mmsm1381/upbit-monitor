@@ -37,13 +37,14 @@ def kst_to_utc(kst_str):
 
 
 class UpbitAnnouncementMonitor:
-    def __init__(self, telegram_bot_token: str, telegram_chat_id: str):
+    def __init__(self, telegram_bot_token: str, telegram_chat_id: str, proxy_list: List[str] = None):
         """
         Initialize the Upbit announcement monitor
 
         Args:
             telegram_bot_token: Your Telegram bot token
             telegram_chat_id: Your Telegram chat ID to send messages to
+            proxy_list: List of proxy strings in format "ip:port:username:password"
         """
         self.upbit_api_url = "https://api-manager.upbit.com/api/v1/announcements"
         self.telegram_bot_token = telegram_bot_token
@@ -56,6 +57,11 @@ class UpbitAnnouncementMonitor:
         self.last_refresh_time = None
         self.tabdeal_client = TabdealAPI(api_key=TABDEAL_API_KEY, secret_key=TABDEAL_API_SECRET)
 
+        # Proxy configuration
+        self.proxy_list = proxy_list or []
+        self.proxy_index = 0
+        self.parsed_proxies = self._parse_proxy_list()
+
         # API parameters
         self.api_params = {
             'os': 'web',
@@ -64,18 +70,80 @@ class UpbitAnnouncementMonitor:
             'category': 'trade'
         }
 
-        logging.info("Upbit Announcement Monitor initialized")
+        logging.info(f"Upbit Announcement Monitor initialized with {len(self.proxy_list)} proxies")
+
+    def _parse_proxy_list(self) -> List[Dict]:
+        """
+        Parse proxy list from string format to dictionary format
+
+        Returns:
+            List of proxy dictionaries
+        """
+        parsed_proxies = []
+
+        for proxy_str in self.proxy_list:
+            try:
+                parts = proxy_str.strip().split(':')
+                if len(parts) == 4:
+                    ip, port, username, password = parts
+                    proxy_dict = {
+                        'http': f'http://{username}:{password}@{ip}:{port}',
+                        'https': f'http://{username}:{password}@{ip}:{port}'
+                    }
+                    parsed_proxies.append(proxy_dict)
+                    logging.info(f"Parsed proxy: {ip}:{port}")
+                else:
+                    logging.warning(f"Invalid proxy format: {proxy_str}")
+            except Exception as e:
+                logging.error(f"Error parsing proxy {proxy_str}: {e}")
+
+        return parsed_proxies
+
+    def get_next_proxy(self) -> Dict:
+        """
+        Get the next proxy in rotation
+
+        Returns:
+            Proxy dictionary or None if no proxies available
+        """
+        if not self.parsed_proxies:
+            return None
+
+        proxy = self.parsed_proxies[self.proxy_index]
+        self.proxy_index = (self.proxy_index + 1) % len(self.parsed_proxies)
+
+        return proxy
 
     def fetch_announcements(self) -> List[Dict]:
         """
-        Fetch announcements from Upbit API
+        Fetch announcements from Upbit API using rotating proxies
 
         Returns:
             List of announcement dictionaries
         """
+        proxy = self.get_next_proxy()
+
         try:
             headers = {"accept-language": "en-US,en;q=0.5"}
-            response = requests.get(self.upbit_api_url, params=self.api_params, timeout=10, headers=headers)
+
+            if proxy:
+                logging.info(f"Using proxy: {proxy['http'].split('@')[1]}")
+                response = requests.get(
+                    self.upbit_api_url,
+                    params=self.api_params,
+                    timeout=10,
+                    headers=headers,
+                    proxies=proxy
+                )
+            else:
+                logging.info("No proxy available, using direct connection")
+                response = requests.get(
+                    self.upbit_api_url,
+                    params=self.api_params,
+                    timeout=10,
+                    headers=headers
+                )
+
             response.raise_for_status()
 
             data = response.json()
@@ -84,6 +152,25 @@ class UpbitAnnouncementMonitor:
 
             logging.info(f"Fetched {len(announcements)} announcements")
             return announcements
+
+        except requests.exceptions.ProxyError as e:
+            logging.error(f"Proxy error: {e}")
+            # Try without proxy as fallback
+            try:
+                logging.info("Attempting direct connection as fallback")
+                headers = {"accept-language": "en-US,en;q=0.5"}
+                response = requests.get(self.upbit_api_url, params=self.api_params, timeout=10, headers=headers)
+                response.raise_for_status()
+
+                data = response.json()
+                announcements = data["data"]["notices"]
+                announcements.reverse()
+
+                logging.info(f"Fetched {len(announcements)} announcements via direct connection")
+                return announcements
+            except Exception as fallback_error:
+                logging.error(f"Direct connection fallback also failed: {fallback_error}")
+                return []
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Error fetching announcements: {e}")
@@ -267,6 +354,19 @@ def main():
     TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
     TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
+    # Proxy configuration - Add your proxies here
+    PROXY_LIST = [
+        "77.93.143.12:4129:dyBg8XJ4hE:iqMojfcpww",
+        "77.93.143.33:9933:dyBg8XJ4hE:iqMojfcpww",
+        "77.93.143.34:5277:dyBg8XJ4hE:iqMojfcpww",
+        "77.93.143.39:3682:dyBg8XJ4hE:iqMojfcpww",
+        "77.93.143.4:20191:dyBg8XJ4hE:iqMojfcpww"
+
+        # Add more proxies in the same format
+        # "ip:port:username:password",
+        # "ip:port:username:password",
+    ]
+
     # Validate configuration
     if TELEGRAM_BOT_TOKEN == "YOUR_TELEGRAM_BOT_TOKEN_HERE":
         print("❌ Please configure your Telegram bot token in the script")
@@ -277,7 +377,7 @@ def main():
         return
 
     # Create and run monitor
-    monitor = UpbitAnnouncementMonitor(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
+    monitor = UpbitAnnouncementMonitor(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, PROXY_LIST)
     monitor.run_monitor(check_interval_seconds=1)  # Check every 60 seconds
 
 
