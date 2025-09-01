@@ -363,6 +363,9 @@ def main():
         "64.137.96.74:6641:oxpcrksh:3lnhexisodh8",
         "45.43.186.39:6257:oxpcrksh:3lnhexisodh8",
         "154.203.43.247:5536:oxpcrksh:3lnhexisodh8",
+        "216.10.27.159:6837:oxpcrksh:3lnhexisodh8",
+        "136.0.207.84:6661:oxpcrksh:3lnhexisodh8",
+        "142.147.128.93:6593:oxpcrksh:3lnhexisodh8",
 
         # Add more proxies in the same format
         # "ip:port:username:password",
