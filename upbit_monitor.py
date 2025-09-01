@@ -356,11 +356,11 @@ def main():
 
     # Proxy configuration - Add your proxies here
     PROXY_LIST = [
-        "77.93.143.12:4129:dyBg8XJ4hE:iqMojfcpww",
-        "77.93.143.33:9933:dyBg8XJ4hE:iqMojfcpww",
-        "77.93.143.34:5277:dyBg8XJ4hE:iqMojfcpww",
-        "77.93.143.39:3682:dyBg8XJ4hE:iqMojfcpww",
-        "77.93.143.4:20191:dyBg8XJ4hE:iqMojfcpww"
+        "202.155.136.100:36513:dyBg8XJ4hE:iqMojfcpww",
+        "202.155.136.11:15909:dyBg8XJ4hE:iqMojfcpww",
+        "202.155.136.163:2862:dyBg8XJ4hE:iqMojfcpww",
+        "202.155.136.4:33131:dyBg8XJ4hE:iqMojfcpww",
+        "202.155.136.147:21896:dyBg8XJ4hE:iqMojfcpww"
 
         # Add more proxies in the same format
         # "ip:port:username:password",
