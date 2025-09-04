@@ -84,7 +84,7 @@ class UpbitAnnouncementMonitor:
         for banned_proxy in self.banned_proxies:
             try:
                 self.proxy_list.remove(banned_proxy)
-            except ValueError:
+            except:
                 pass
 
             print(f"removed banned proxy {banned_proxy} for list")
