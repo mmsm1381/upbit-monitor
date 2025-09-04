@@ -1,5 +1,4 @@
 import os
-from pyexpat.errors import messages
 
 import requests
 import time
