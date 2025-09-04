@@ -59,8 +59,8 @@ class UpbitAnnouncementMonitor:
         # Proxy configuration
         self.proxy_list = proxy_list or []
         self.proxy_index = 0
-        self.parsed_proxies = self._parse_proxy_list()
         self.banned_proxies = []
+        self.parsed_proxies = self._parse_proxy_list()
 
         # API parameters
         self.api_params = {
