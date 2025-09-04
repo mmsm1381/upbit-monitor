@@ -81,14 +81,6 @@ class UpbitAnnouncementMonitor:
         """
         parsed_proxies = []
 
-        for banned_proxy in self.banned_proxies:
-            try:
-                self.proxy_list.remove(banned_proxy)
-            except:
-                pass
-
-            print(f"removed banned proxy {banned_proxy} for list")
-
         for proxy_str in self.proxy_list:
             try:
                 parts = proxy_str.strip().split(':')
@@ -147,7 +139,6 @@ class UpbitAnnouncementMonitor:
                 if response.status_code != 200:
                     self.banned_proxies.append([proxy['http']])
                     print("banned_proxies", self.banned_proxies)
-                    self.parsed_proxies = self._parse_proxy_list()
             else:
                 logging.info("No proxy available, using direct connection")
                 response = requests.get(
