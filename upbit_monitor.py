@@ -60,7 +60,7 @@ class UpbitAnnouncementMonitor:
         self.proxy_list = proxy_list or []
         self.proxy_index = 0
         self.parsed_proxies = self._parse_proxy_list()
-        self.banned_proxies = {}
+        self.banned_proxies = []
 
         # API parameters
         self.api_params = {
@@ -80,6 +80,14 @@ class UpbitAnnouncementMonitor:
             List of proxy dictionaries
         """
         parsed_proxies = []
+
+        for banned_proxy in self.banned_proxies:
+            try:
+                self.proxy_list.remove(banned_proxy)
+            except ValueError:
+                pass
+
+            print(f"removed banned proxy {banned_proxy} for list")
 
         for proxy_str in self.proxy_list:
             try:
@@ -136,10 +144,9 @@ class UpbitAnnouncementMonitor:
                     proxies=proxy
                 )
 
-                if response.status_code != 200:
-                    self.banned_proxies[proxy['http']] = response.status_code
-                    print("banned proxies", self.banned_proxies)
-
+                if response.status_code == 403:
+                    self.banned_proxies.append([proxy['http']])
+                    self._parse_proxy_list()
             else:
                 logging.info("No proxy available, using direct connection")
                 response = requests.get(
