@@ -60,6 +60,7 @@ class UpbitAnnouncementMonitor:
         self.proxy_list = proxy_list or []
         self.proxy_index = 0
         self.parsed_proxies = self._parse_proxy_list()
+        self.banned_proxies = {}
 
         # API parameters
         self.api_params = {
@@ -134,6 +135,11 @@ class UpbitAnnouncementMonitor:
                     headers=headers,
                     proxies=proxy
                 )
+
+                if response.status_code != 200:
+                    self.banned_proxies[proxy['http']] = response.status_code
+                    print("banned proxies", self.banned_proxies)
+
             else:
                 logging.info("No proxy available, using direct connection")
                 response = requests.get(
