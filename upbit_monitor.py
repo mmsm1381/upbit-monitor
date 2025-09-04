@@ -355,23 +355,7 @@ def main():
     TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
     # Proxy configuration - Add your proxies here
-    PROXY_LIST = [
-        "23.95.150.145:6114:oxpcrksh:3lnhexisodh8",
-        "198.23.239.134:6540:oxpcrksh:3lnhexisodh8",
-        "45.38.107.97:6014:oxpcrksh:3lnhexisodh8",
-        "107.172.163.27:6543:oxpcrksh:3lnhexisodh8",
-        "64.137.96.74:6641:oxpcrksh:3lnhexisodh8",
-        "45.43.186.39:6257:oxpcrksh:3lnhexisodh8",
-        "154.203.43.247:5536:oxpcrksh:3lnhexisodh8",
-        "216.10.27.159:6837:oxpcrksh:3lnhexisodh8",
-        "136.0.207.84:6661:oxpcrksh:3lnhexisodh8",
-        "142.147.128.93:6593:oxpcrksh:3lnhexisodh8",
-
-        # Add more proxies in the same format
-        # "ip:port:username:password",
-        # "ip:port:username:password",
-    ]
-
+    PROXY_LIST = os.environ.get("PROXIES").split(",")
     # Validate configuration
     if TELEGRAM_BOT_TOKEN == "YOUR_TELEGRAM_BOT_TOKEN_HERE":
         print("❌ Please configure your Telegram bot token in the script")
@@ -383,7 +367,7 @@ def main():
 
     # Create and run monitor
     monitor = UpbitAnnouncementMonitor(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, PROXY_LIST)
-    monitor.run_monitor(check_interval_seconds=0.5)  # Check every 60 seconds
+    monitor.run_monitor(check_interval_seconds=0)  # Check every 60 seconds
 
 
 if __name__ == "__main__":
