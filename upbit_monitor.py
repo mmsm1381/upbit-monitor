@@ -144,7 +144,7 @@ class UpbitAnnouncementMonitor:
                     proxies=proxy
                 )
 
-                if response.status_code == 403:
+                if response.status_code != 200:
                     self.banned_proxies.append([proxy['http']])
                     self._parse_proxy_list()
             else:
