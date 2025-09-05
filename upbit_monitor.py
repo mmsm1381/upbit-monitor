@@ -30,9 +30,9 @@ logging.basicConfig(
 
 def kst_to_utc(kst_str):
     utc_date = datetime.fromisoformat(kst_str).astimezone(timezone.utc)
-    minutes_passed = int((datetime.now(tz=timezone.utc) - utc_date).total_seconds() // 60)
+    second_passed = (datetime.now(tz=timezone.utc) - utc_date).total_seconds()
 
-    return utc_date.strftime('%Y-%m-%d %H:%M'), minutes_passed
+    return utc_date.strftime('%Y-%m-%d %H:%M'), second_passed
 
 
 class UpbitAnnouncementMonitor:
@@ -265,7 +265,7 @@ class UpbitAnnouncementMonitor:
         """
         title = announcement.get('title', 'No title')
         date = announcement.get('listed_at', 'Unknown date')
-        date, minutes_passed = kst_to_utc(date)
+        date, second_passed = kst_to_utc(date)
         url = announcement.get('url', '')
 
         data = extract_from_text(title)
@@ -276,7 +276,7 @@ class UpbitAnnouncementMonitor:
         message += f"symbol: {data['symbol']}\n"
         message += f"name: <b>{data['name']}</b>\n"
         message += f"quote: <b>{data['quote']}</b>\n\n"
-        message += f"minutes passed: {minutes_passed}"
+        message += f"seconds passed: {second_passed}"
 
         if url:
             message += f"🔗 <b>Link:</b> {url}"
