@@ -15,7 +15,7 @@ load_dotenv()
 TABDEAL_API_KEY = os.getenv('TABDEAL_API_KEY')
 TABDEAL_API_SECRET = os.getenv('TABDEAL_API_SECRET')
 
-USDT_VALUE_FOR_EACH_ORDER = 100
+USDT_VALUE_FOR_EACH_ORDER = 500
 
 # Configure logging
 logging.basicConfig(
